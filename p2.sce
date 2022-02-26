@@ -52,18 +52,18 @@ clc // limpia la consola
 clear // borra el contenido de la memoria
 xdel(winsid()) // cierra ventanas graficas
 // Definicion de la funcion
-function y = f(x)
+function y = F(x)
 y = x.*x;
 endfunction
 // Calculo de la derivada utilizando diferencias finitas
-function y = dfa(f,x,h)
-y = (f(x+h) - f(x))./h;
+function y = dfa(F,x,h)
+y = (F(x+h) - F(x))./h;
 endfunction
 x = 1; // Punto donde vamos a evaluar la derivada
 ih = (0:16);
 h = (10.^-ih); // Vector con los valores de h
-df_approx = dfa(f,x,h); // Evaluacion de la derivada por diferencias finitas
-df_scilab = numderivative(f,x,[],order=1); // Derivada obtenida por numderivative
+df_approx = dfa(F,x,h); // Evaluacion de la derivada por diferencias finitas
+df_scilab = numderivative(F,x,[],order=1); // Derivada obtenida por numderivative
 df_true = 2; // Valor verdadero de la derivada en x = 1
 
 // Errores absolutos y relativos
@@ -129,3 +129,71 @@ function [b,d] = mi_horner(p,x0)
     end
     
 endfunction
+
+
+// Ejercicio 4
+
+// funcion f es la ley de la función dada por un string, usa como 
+// variable x
+// v es el valor donde se evaluará la derivada
+// n es el orden de derivación
+// h es el paso de derivación
+
+function valor = derivada(f,v,n,h)
+    deff("y=DF0(x)","y="+f);
+    if n==0 then valor = DF0(v);
+    else
+        for i=1:(n-1)
+            deff("y=DF"+string(i)+"(x)","y=(DF"+string(i-1)+"(x+"+string(h)+")-DF"+string(i-1)+"(x))/"+string(h));
+        end
+        deff("y=DFn(x)","y=(DF"+string(n-1)+"(x+"+string(h)+")-DF"+string(n-1)+"(x))/"+string(h));
+        valor = DFn(v);
+    end
+endfunction
+
+// usando numderivative
+// esta función utiliza un orden para numderivative igual a 4
+function valor = derivadaNum(f,v,n,h)
+    deff("y=DF0(x)","y="+f);
+    if n==0 then valor = DF0(v);
+    else
+        for i=1:(n-1)
+            deff("y=DF"+string(i)+"(x)","y=numderivative(DF"+string(i-1)+",x,"+string(h)+",4)");
+        end
+        deff("y=DFn(x)","y=numderivative(DF"+string(n-1)+",x,"+string(h)+",4)");
+        valor = DFn(v);
+    end
+endfunction
+
+// Apartado a)
+
+printf("Valor esperado para derivada de exponencial en 0: 1\n\n");
+for i=1:4
+    cociente = derivada("exp(x)",0,i,0.01);
+    numder = derivadaNum("exp(x)",0,i,0.01)
+    printf("Valor derivada orden %d con cociente: %.5e\n", i, cociente);
+    printf("Valor derivada orden %d con numderivative: %.5e\n", i, numder);
+    printf("Error relativo cociente orden %d: %.5e\n", i,(abs(cociente-1)/1));
+    printf("Error relativo numderivate orden %d: %.5e\n", i,(abs(numder-1)/1));
+    printf("\n");
+end
+
+esperado =  list(8+exp(1), 24+exp(1), 48+exp(1), 48+exp(1))
+for i=1:4
+    cociente = derivada("(2*x^4)+exp(x)",1,i,0.01)
+    numder = derivadaNum("(2*x^4)+exp(x)",1,i,0.01)
+    printf("Valor esperado para derivada orden %d de 2x^4 + exp(x) en 1: %.5e\n\n", i, esperado(i));
+    printf("Valor derivada orden %d con cociente: %.5e\n", i, cociente);
+    printf("Valor derivada orden %d con numderivative: %.5e\n", i, numder);
+    printf("Error relativo cociente orden %d: %.5e\n", i, (abs(cociente-esperado(i))/esperado(i)));
+    printf("Error relativo numderivate orden %d: %.5e\n", i, (abs(numder-esperado(i))/esperado(i)));
+    printf("\n");
+end
+
+
+
+// Apartado b)
+
+// En la implementación de cociente incremental, el error crece dependiendo del orden y del paso de derivación.
+// Para un paso de derivación muy chico, en ordenes muy altos, se eleva a una potencia alta y por lo tanto
+// cada vez se hace mas chico
