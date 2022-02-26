@@ -190,10 +190,25 @@ for i=1:4
     printf("\n");
 end
 
-
-
 // Apartado b)
 
 // En la implementación de cociente incremental, el error crece dependiendo del orden y del paso de derivación.
 // Para un paso de derivación muy chico, en ordenes muy altos, se eleva a una potencia alta y por lo tanto
 // cada vez se hace mas chico
+
+
+// Ejercicio 5
+
+function valor = taylor(f, v, n)
+    h = 0.01
+
+    for i = 1:n
+        numerador = derivar(f, 0 , i, h)
+        denominador = factorial(i)
+        coeficientes(i) = numerador / denominador
+    end
+    p = poly(coeficientes, "x", "coeff")
+    valor = horner(p, v) + f(0)
+endfunction
+
+
