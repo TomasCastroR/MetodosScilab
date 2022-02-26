@@ -90,3 +90,42 @@ mprintf('%s\n',strcat(repmat('-',1,120)));
 mprintf('%4.1s %8s \t%9.6e %18.10e %14.5e %14.5e\n',...
 ' ', 'Scilab',[df_true',df_scilab',err_abs_sci',err_rel_sci']);
 mprintf('%s\n',strcat(repmat('-',1,120)));
+
+
+// Ejercicio 3
+
+// Toma un polinomio y un punto
+// Retorna polinomio evaluado en el punto
+function b = mi_horner1(p,x0)
+    n = degree(p)+1;
+    a = coeff(p)
+    b = a(n);
+
+    for i=1:(n-1)
+        b = a(n-i) + x0*b;
+    end
+    
+endfunction
+
+// Generalizacion del Algoritmo de Horner
+// Toma un polinomio y un punto
+// Devuelta una tupla donde el primer valor es el polinomio evaluado en el punto
+// y el segundo la derivada del polinomio evaluado en el mismo punto
+function [b,d] = mi_horner(p,x0)
+    n = degree(p)+1;
+    a = coeff(p)
+    b = a(n);
+    if n == 1 then d = 0; // Si n = 1 entonces el polinomio es una constante
+    else
+        d = a(n);
+    end
+    
+    for i=1:(n-2)
+        b = a(n-i) + x0*b;
+        d = b + x0*d;
+    end
+    // Si el polinomio no era una constante definimos el ultimo b
+    if n > 1 then b = a(1) + x0*b;
+    end
+    
+endfunction
